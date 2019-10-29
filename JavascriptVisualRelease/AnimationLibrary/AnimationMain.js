@@ -29,6 +29,9 @@
 var timer;
 var swapped = false;
 
+// TM ADDED
+var ANIM_ENDED_EVENT = new Event('ANIM_ENDED')
+
 
 function reorderSibling(node1, node2) 
 {
@@ -165,6 +168,9 @@ function animStarted()
 
 function animEnded()
 {
+	// TM ADDED
+	document.dispatchEvent(ANIM_ENDED_EVENT);
+
 	skipForwardButton.disabled = true;
 	stepForwardButton.disabled = true;
 	if (skipBackButton.disabled == false && paused)
