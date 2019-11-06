@@ -311,7 +311,6 @@ RedBlack.prototype.attachLeftNullLeaf = function (node) {
 	var treeNodeID = this.nextIndex++;
 	this.cmd("CreateCircle", treeNodeID, "NULL\nLEAF", node.x, node.y);
 	this.cmd("SetForegroundColor", treeNodeID, FOREGROUND_BLACK);
-	this.cmd("SetBackgroundColor", treeNodeID, BACKGROUND_BLACK);
 	node.left = new RedBlackNode("", treeNodeID, this.startingX, startingY);
 	node.left.phantomLeaf = true;
 	this.cmd("SetLayer", treeNodeID, 1);
@@ -338,7 +337,11 @@ RedBlack.prototype.attachNullLeaves = function (node) {
 	this.attachRightNullLeaf(node);
 }
 
-RedBlack.prototype.insertElement = function (insertedValue) {
+RedBlack.prototype.insertElement = function (args) {
+	// Args should be of SchedEntity class (defined below)
+	let insertedValue = args.value;
+	let color = args.color;
+	console.log(color);
 	this.commands = new Array();
 	this.cmd("SetText", 0, " Inserting " + insertedValue);
 	this.highlightID = this.nextIndex++;
@@ -347,7 +350,7 @@ RedBlack.prototype.insertElement = function (insertedValue) {
 		treeNodeID = this.nextIndex++;
 		this.cmd("CreateCircle", treeNodeID, insertedValue, this.startingX, startingY);
 		this.cmd("SetForegroundColor", treeNodeID, FOREGROUND_BLACK);
-		this.cmd("SetBackgroundColor", treeNodeID, BACKGROUND_BLACK);
+		this.cmd("SetBackgroundColor", treeNodeID, color);
 		this.treeRoot = new RedBlackNode(insertedValue, treeNodeID, this.startingX, startingY);
 		this.treeRoot.blackLevel = 1;
 
@@ -360,7 +363,7 @@ RedBlack.prototype.insertElement = function (insertedValue) {
 
 		this.cmd("CreateCircle", treeNodeID, insertedValue, 30, startingY);
 		this.cmd("SetForegroundColor", treeNodeID, FOREGROUND_RED);
-		this.cmd("SetBackgroundColor", treeNodeID, BACKGROUND_RED);
+		this.cmd("SetBackgroundColor", treeNodeID, color);
 		this.cmd("Step");
 		var insertElem = new RedBlackNode(insertedValue, treeNodeID, 100, 100)
 
@@ -1624,6 +1627,32 @@ function init() {
 	addNext();
 }
 
+// TM ADDED 
+// Stores an argument given to insertElement
+class SchedEntity {
+	constructor(value, color) {
+		this.value = value;
+		this.color = color;
+	}
+}
+
+// TM ADDED
+function random_digit() {
+	return String(Math.floor(Math.random() * 10));
+}
+
+// TM ADDED
+function random_color() {
+	let choice = Math.floor(Math.random() * 3)
+	if (choice == 0) {
+		return "#" + random_digit() + random_digit() + "AAAA";
+	} else if (choice == 1) {
+		return "#" + "AA" + random_digit() + random_digit() + "AA";
+	} else {
+		return "#" + "AAAA" + random_digit() + random_digit();
+	}
+}
+
 // TM ADDED
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -1634,7 +1663,11 @@ function sleep(ms) {
 addNext = async function() {
 	// Sleep gives time for the event to register
 	await sleep(100);
-	currentAlg.implementAction(currentAlg.insertElement.bind(currentAlg), Math.floor(Math.random() * 10000));
+
+	// Combine into argument class
+	se = new SchedEntity(Math.floor(Math.random() * 10000), random_color());
+
+	currentAlg.implementAction(currentAlg.insertElement.bind(currentAlg), se);
 }
 
 // TM ADDED
