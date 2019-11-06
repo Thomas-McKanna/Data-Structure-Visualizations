@@ -27,7 +27,7 @@ class RbNodeTM {
         } else {
             this.color = color;
         }
-
+        
         this.key = key;
         this.left = null;
         this.right = null;
@@ -40,11 +40,11 @@ class RbNodeTM {
         return buffer;
     }
 
-    print(prefix, children_prefix) {
+    print (prefix, children_prefix) {
         buffer += prefix;
         buffer += this.key;
         buffer += "\n";
-
+        
         // Left child
         if (this.left.key != null) {
             this.left.print(children_prefix + "|--  ", children_prefix + "|   ");
@@ -65,7 +65,11 @@ class RedBlackTreeTM {
     }
 
     to_string() {
-        return this.root.to_string();
+        if (this.root != this.nil) {
+            return this.root.to_string();
+        } else {
+            return "";
+        }
     }
 }
 
@@ -141,11 +145,11 @@ function left_rotate(T, x) {
 * Inserts z into RB-Tree T.
 */
 function rb_insert(T, z) {
-
+    
     let y = T.nil;
     let x = T.root;
     while (x != T.nil) {
-
+        
         y = x;
         if (z.key < x.key) {
             x = x.left;
@@ -189,7 +193,7 @@ function rb_insert_fixup(T, z) {
                 z.p.p.color = RED;
                 right_rotate(T, z.p.p);
             }
-        }
+        } 
         // Same as the previous clause, but with "right" and "left" exchanged
         else {
             let y = z.p.p.left;
@@ -212,5 +216,129 @@ function rb_insert_fixup(T, z) {
     T.root.color = BLACK;
 }
 
+/*
+* Swaps two subtrees u and v in RB-Tree T.
+*/
+function rb_transplant(T, u, v) {
+    if (u.p == T.nil) {
+        T.root = v;
+    } else if (u == u.p.left) {
+        u.p.left = v;
+    } else {
+        u.p.right = v;
+    }
+    v.p = u.p;
+}
 
+/*
+* Deletes node z from T.
+*/
+function rb_delete(T, z) {
+    let y = z;
+    let y_original_color = y.color;
+    let x = null;
+    if (z.left == T.nil) {
+        x = z.right;
+        rb_transplant(T, z, z.right);
+    } else if (z.right == T.nil) {
+        x = z.left;
+        rb_transplant(T, z, z.left);
+    } else {
+        y = tree_maximum(z.left);
+        console.log(y);
+        y_original_color = y.color;
+        x = y.right;
+        if (y.p == z) {
+            x.p = y;
+        } else {
+            rb_transplant(T, y, y.left)
+            y.left = z.left;
+            y.left.p = y;
+        }
+        rb_transplant(T, z, y);
+        y.right = z.right;
+        y.right.p = y;
+        y.color = z.color;
+    }
+    if (y_original_color == BLACK) {
+        rb_delete_fixup(T, x);
+    }
+}
+
+/*
+* Returns the minimum element in the subtree rooted at x.
+*/
+function tree_minimum(x) {
+    while (x.left.key != null) {
+        x = x.left;
+    }
+    return x;
+}
+
+/*
+* Returns the maximum element in the subtree rooted at x.
+*/
+function tree_maximum(x) {
+    while (x.right.key != null) {
+        x = x.right;
+    }
+    return x;
+}
+
+function rb_delete_fixup(T, x) {
+    while (x != T.root && x.color == BLACK) {
+        if (x == x.p.left) {
+            let w = x.p.right;
+            if (w.color == RED) {
+                w.color = BLACK;
+                x.p.color = RED;
+                left_rotate(T, x.p);
+                w = x.p.right;
+            }
+            if (w.left.color == BLACK && w.right.color == BLACK) {
+                w.color = RED;
+                x = x.p;
+            } else {
+                if (w.right.color == BLACK) {
+                    w.left.color = BLACK;
+                    w.color = RED;
+                    right_rotate(T, w);
+                    w = x.p.right;
+                }
+                w.color = x.p.color;
+                x.p.color = BLACK;
+                w.right.color = BLACK;
+                left_rotate(T, x.p);
+                x = T.root;
+            }
+        } 
+        // Same as the previous clause, but with "right" and "left" exchanged
+        else {
+            let w = x.p.left;
+            if (w.color == RED) {
+                w.color = BLACK;
+                x.p.color = RED;
+                right_rotate(T, x.p);
+                w = x.p.left;
+            }
+            if (w.right.color == BLACK && w.left.color == BLACK) {
+                w.color = RED;
+                x = x.p;
+            } else {
+                if (w.left.color == BLACK) {
+                    w.right.color = BLACK;
+                    w.color = RED;
+                    left_rotate(T, w);
+                    w = x.p.left;
+                }
+                w.color = x.p.color;
+                x.p.color = BLACK;
+                w.left.color = BLACK;
+                right_rotate(T, x.p);
+                x = T.root;
+            }
+        } 
+    }
+    x.color = BLACK;
+}
 

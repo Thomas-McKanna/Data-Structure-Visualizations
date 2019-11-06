@@ -80,28 +80,32 @@
 	</div><!-- container -->
 	<script>
 		let rbt = new RedBlackTreeTM();
-		rb_insert(rbt, new RbNodeTM(5));
-		rb_insert(rbt, new RbNodeTM(3));
-		rb_insert(rbt, new RbNodeTM(6));
-		rb_insert(rbt, new RbNodeTM(7));
-		rb_insert(rbt, new RbNodeTM(27));
-		rb_insert(rbt, new RbNodeTM(55));
-		rb_insert(rbt, new RbNodeTM(54));
-		rb_insert(rbt, new RbNodeTM(77));
-		rb_insert(rbt, new RbNodeTM(6));
-		rb_insert(rbt, new RbNodeTM(6));
-		rb_insert(rbt, new RbNodeTM(6));
-		rb_insert(rbt, new RbNodeTM(5));
-		rb_insert(rbt, new RbNodeTM(1));
-		rb_insert(rbt, new RbNodeTM(2));
-		rb_insert(rbt, new RbNodeTM(3));
-		rb_insert(rbt, new RbNodeTM(5));
-		rb_insert(rbt, new RbNodeTM(5));
-		rb_insert(rbt, new RbNodeTM(6));
-		rb_insert(rbt, new RbNodeTM(6));
-		rb_insert(rbt, new RbNodeTM(6));
-		rb_insert(rbt, new RbNodeTM(6));
-
+		let nodes = [
+			new RbNodeTM(55),
+			new RbNodeTM(54),
+			new RbNodeTM(53),
+			new RbNodeTM(52),
+			new RbNodeTM(51),
+			new RbNodeTM(50),
+			new RbNodeTM(45),
+			new RbNodeTM(47),
+		]
+		rb_insert(rbt, nodes[0]);
+		rb_insert(rbt, nodes[1]);
+		rb_insert(rbt, nodes[2]);
+		rb_insert(rbt, nodes[3]);
+		rb_insert(rbt, nodes[4]);
+		rb_insert(rbt, nodes[5]);
+		rb_insert(rbt, nodes[6]);
+		rb_insert(rbt, nodes[7]);
+		rb_delete(rbt, nodes[6]);
+		rb_delete(rbt, nodes[7]);
+		rb_delete(rbt, nodes[5]);
+		rb_delete(rbt, nodes[4]);
+		rb_delete(rbt, nodes[3]);
+		rb_delete(rbt, nodes[2]);
+		rb_delete(rbt, nodes[1]);
+		rb_delete(rbt, nodes[0]);
 		console.log(rbt.to_string())
 	</script>
 </body>
