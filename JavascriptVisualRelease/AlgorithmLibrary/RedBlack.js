@@ -343,6 +343,8 @@ RedBlack.prototype.insertElement = function (insertedValue) {
 	this.cmd("SetText", 0, " Inserting " + insertedValue);
 	this.highlightID = this.nextIndex++;
 	var treeNodeID;
+	// TM ADDED
+	console.log(this.nextIndex + 1);
 	if (this.treeRoot == null) {
 		treeNodeID = this.nextIndex++;
 		this.cmd("CreateCircle", treeNodeID, insertedValue, this.startingX, startingY);
@@ -664,6 +666,18 @@ RedBlack.prototype.deleteElement = function (deletedValue) {
 	this.cmd("SetText", 0, " ");
 	this.highlightID = this.nextIndex++;
 	this.treeDelete(this.treeRoot, deletedValue);
+	this.cmd("SetText", 0, " ");
+	// Do delete
+	return this.commands;
+}
+
+RedBlack.prototype.deleteLeftmostNode = function () {
+	this.commands = new Array();
+	this.cmd("SetText", 0, "Deleting left-most node");
+	this.cmd("Step");
+	this.cmd("SetText", 0, " ");
+	this.highlightID = this.nextIndex++;
+	this.treeDeleteLeft(this.treeRoot);
 	this.cmd("SetText", 0, " ");
 	// Do delete
 	return this.commands;
@@ -1169,6 +1183,298 @@ RedBlack.prototype.treeDelete = function (tree, valueToDelete) {
 
 }
 
+// TM ADDED ENTIRE FUNCTION (Altered from treeDelete)
+// THIS FUNCTION WILL DELETE THE LEFT-MOST NODE IN THE TREE
+RedBlack.prototype.treeDeleteLeft = function (tree) {
+	var leftchild = false;
+	if (tree != null && !tree.phantomLeaf) {
+		if (tree.parent != null) {
+			leftchild = tree.parent.left == tree;
+		}
+		this.cmd("SetHighlight", tree.graphicID, 1);
+		if (tree.left != null) {
+			this.cmd("SetText", 0, " Looking at left subtree");
+		} else {
+			this.cmd("SetText", 0, "Found left-most node to delete");
+		}
+		
+		this.cmd("Step");
+		this.cmd("SetHighlight", tree.graphicID, 0);
+		
+		// TM ADDED BLOCK
+		if (tree.left.left != null) {
+			this.cmd("CreateHighlightCircle", this.highlightID, HIGHLIGHT_COLOR, tree.x, tree.y);
+			this.cmd("Move", this.highlightID, tree.left.x, tree.left.y);
+			this.cmd("Step");
+			this.cmd("Delete", this.highlightID);
+			this.treeDeleteLeft(tree.left);
+		} else {
+			var needFix = tree.blackLevel > 0;
+			if (((tree.left == null) || tree.left.phantomLeaf) && ((tree.right == null) || tree.right.phantomLeaf)) {
+				this.cmd("SetText", 0, "Node to delete is a leaf.  Delete it.");
+				this.cmd("Delete", tree.graphicID);
+
+				if (tree.left != null) {
+					this.cmd("Delete", tree.left.graphicID);
+				}
+				if (tree.right != null) {
+					this.cmd("Delete", tree.right.graphicID);
+				}
+
+
+				if (leftchild && tree.parent != null) {
+					tree.parent.left = null;
+					this.resizeTree();
+
+					if (needFix) {
+						this.fixLeftNull(tree.parent);
+					}
+					else {
+
+						this.attachLeftNullLeaf(tree.parent);
+						this.resizeTree();
+					}
+				}
+				else if (tree.parent != null) {
+					tree.parent.right = null;
+					this.resizeTree();
+					if (needFix) {
+						this.fixRightNull(tree.parent);
+					}
+					else {
+						this.attachRightNullLeaf(tree.parent);
+						this.resizeTree();
+					}
+				}
+				else {
+					this.treeRoot = null;
+				}
+
+			}
+			else if (tree.left == null || tree.left.phantomLeaf) {
+				this.cmd("SetText", 0, "Node to delete has no left child.  \nSet parent of deleted node to right child of deleted node.");
+				if (tree.left != null) {
+					this.cmd("Delete", tree.left.graphicID);
+					tree.left = null;
+				}
+
+				if (tree.parent != null) {
+					this.cmd("Disconnect", tree.parent.graphicID, tree.graphicID);
+					this.cmd("Connect", tree.parent.graphicID, tree.right.graphicID, LINK_COLOR);
+					this.cmd("Step");
+					this.cmd("Delete", tree.graphicID);
+					if (leftchild) {
+						tree.parent.left = tree.right;
+						if (needFix) {
+							this.cmd("SetText", 0, "Back node removed.  Increasing child's blackness level");
+							tree.parent.left.blackLevel++;
+							this.fixNodeColor(tree.parent.left);
+							this.fixExtraBlack(tree.parent.left);
+						}
+					}
+					else {
+						tree.parent.right = tree.right;
+						if (needFix) {
+							tree.parent.right.blackLevel++;
+							this.cmd("SetText", 0, "Back node removed.  Increasing child's blackness level");
+							this.fixNodeColor(tree.parent.right);
+							this.fixExtraBlack(tree.parent.right);
+						}
+
+					}
+					tree.right.parent = tree.parent;
+				}
+				else {
+					this.cmd("Delete", tree.graphicID);
+					this.treeRoot = tree.right;
+					this.treeRoot.parent = null;
+					if (this.treeRoot.blackLevel == 0) {
+						this.treeRoot.blackLevel = 1;
+						this.cmd("SetForegroundColor", this.treeRoot.graphicID, FOREGROUND_BLACK);
+						this.cmd("SetBackgroundColor", this.treeRoot.graphicID, BACKGROUND_BLACK);
+					}
+				}
+				this.resizeTree();
+			}
+			else if (tree.right == null || tree.right.phantomLeaf) {
+				this.cmd("SetText", 0, "Node to delete has no right child.  \nSet parent of deleted node to left child of deleted node.");
+				if (tree.right != null) {
+					this.cmd("Delete", tree.right.graphicID);
+					tree.right = null;
+				}
+				if (tree.parent != null) {
+					this.cmd("Disconnect", tree.parent.graphicID, tree.graphicID);
+					this.cmd("Connect", tree.parent.graphicID, tree.left.graphicID, LINK_COLOR);
+					this.cmd("Step");
+					this.cmd("Delete", tree.graphicID);
+					if (leftchild) {
+						tree.parent.left = tree.left;
+						if (needFix) {
+							tree.parent.left.blackLevel++;
+							this.fixNodeColor(tree.parent.left);
+							this.fixExtraBlack(tree.parent.left);
+							this.resizeTree();
+						}
+						else {
+							this.cmd("SetText", 0, "Deleted node was red.  No tree rotations required.");
+							this.resizeTree();
+
+						}
+					}
+					else {
+						tree.parent.right = tree.left;
+						if (needFix) {
+							tree.parent.right.blackLevel++;
+							this.fixNodeColor(tree.parent.right);
+							this.fixExtraBlack(tree.parent.left);
+							this.resizeTree();
+						}
+						else {
+							this.cmd("SetText", 0, "Deleted node was red.  No tree rotations required.");
+							this.resizeTree();
+						}
+					}
+					tree.left.parent = tree.parent;
+				}
+				else {
+					this.cmd("Delete", tree.graphicID);
+					this.treeRoot = tree.left;
+					this.treeRoot.parent = null;
+					if (this.treeRoot.blackLevel == 0) {
+						this.treeRoot.blackLevel = 1;
+						this.fixNodeColor(this.treeRoot);
+					}
+				}
+			}
+			else // tree.left != null && tree.right != null
+			{
+				this.cmd("SetText", 0, "Node to delete has two childern.  \nFind largest node in left subtree.");
+
+				this.highlightID = this.nextIndex;
+				this.nextIndex += 1;
+				this.cmd("CreateHighlightCircle", this.highlightID, HIGHLIGHT_COLOR, tree.x, tree.y);
+				var tmp = tree;
+				tmp = tree.left;
+				this.cmd("Move", this.highlightID, tmp.x, tmp.y);
+				this.cmd("Step");
+				while (tmp.right != null && !tmp.right.phantomLeaf) {
+					tmp = tmp.right;
+					this.cmd("Move", this.highlightID, tmp.x, tmp.y);
+					this.cmd("Step");
+				}
+				if (tmp.right != null) {
+					this.cmd("Delete", tmp.right.graphicID);
+					tmp.right = null;
+				}
+				this.cmd("SetText", tree.graphicID, " ");
+				var labelID = this.nextIndex;
+				this.nextIndex += 1;
+				this.cmd("CreateLabel", labelID, tmp.data, tmp.x, tmp.y);
+				this.cmd("SetForegroundColor", labelID, BLUE);
+				tree.data = tmp.data;
+				this.cmd("Move", labelID, tree.x, tree.y);
+				this.cmd("SetText", 0, "Copy largest value of left subtree into node to delete.");
+
+				this.cmd("Step");
+				this.cmd("SetHighlight", tree.graphicID, 0);
+				this.cmd("Delete", labelID);
+				this.cmd("SetText", tree.graphicID, tree.data);
+				this.cmd("Delete", this.highlightID);
+				this.cmd("SetText", 0, "Remove node whose value we copied.");
+
+				needFix = tmp.blackLevel > 0;
+
+
+				if (tmp.left == null) {
+					this.cmd("Delete", tmp.graphicID);
+					if (tmp.parent != tree) {
+						tmp.parent.right = null;
+						this.resizeTree();
+						if (needFix) {
+							this.fixRightNull(tmp.parent);
+						}
+						else {
+							this.cmd("SetText", 0, "Deleted node was red.  No tree rotations required.");
+							this.cmd("Step");
+						}
+					}
+					else {
+						tree.left = null;
+						this.resizeTree();
+						if (needFix) {
+							this.fixLeftNull(tmp.parent);
+						}
+						else {
+							this.cmd("SetText", 0, "Deleted node was red.  No tree rotations required.");
+							this.cmd("Step");
+						}
+					}
+				}
+				else {
+					this.cmd("Disconnect", tmp.parent.graphicID, tmp.graphicID);
+					this.cmd("Connect", tmp.parent.graphicID, tmp.left.graphicID, LINK_COLOR);
+					this.cmd("Step");
+					this.cmd("Delete", tmp.graphicID);
+
+					if (tmp.parent != tree) {
+						tmp.parent.right = tmp.left;
+						tmp.left.parent = tmp.parent;
+						this.resizeTree();
+
+						if (needFix) {
+							this.cmd("SetText", 0, "Coloring child of deleted node black");
+							this.cmd("Step");
+							tmp.left.blackLevel++;
+							if (tmp.left.phantomLeaf) {
+								this.cmd("SetLayer", tmp.left.graphicID, 0);
+							}
+							this.fixNodeColor(tmp.left);
+							this.fixExtraBlack(tmp.left);
+							if (tmp.left.phantomLeaf) {
+								this.cmd("SetLayer", tmp.left.graphicID, 1);
+							}
+
+						}
+						else {
+							this.cmd("SetText", 0, "Deleted node was red.  No tree rotations required.");
+							this.cmd("Step");
+						}
+					}
+					else {
+						tree.left = tmp.left;
+						tmp.left.parent = tree;
+						this.resizeTree();
+						if (needFix) {
+							this.cmd("SetText", 0, "Coloring child of deleted node black");
+							this.cmd("Step");
+							tmp.left.blackLevel++;
+							if (tmp.left.phantomLeaf) {
+								this.cmd("SetLayer", tmp.left.graphicID, 0);
+							}
+
+							this.fixNodeColor(tmp.left);
+							this.fixExtraBlack(tmp.left);
+							if (tmp.left.phantomLeaf) {
+								this.cmd("SetLayer", tmp.left.graphicID, 1);
+							}
+
+						}
+						else {
+							this.cmd("SetText", 0, "Deleted node was red.  No tree rotations required.");
+							this.cmd("Step");
+						}
+					}
+				}
+				tmp = tmp.parent;
+			}
+		}
+	}
+	else {
+		this.cmd("SetText", 0, "Elemet not found, could not delete");
+	}
+
+}
+
 
 RedBlack.prototype.fixNodeColor = function (tree) {
 	if (tree.blackLevel == 0) {
@@ -1301,14 +1607,21 @@ RedBlackNode.prototype.isLeftChild = function () {
 
 
 var currentAlg;
-
+var GLOBAL_COUNT = 0
 function init() {
 	var animManag = initCanvas();
 	currentAlg = new RedBlack(animManag, canvas.width, canvas.height);
 
 	// TM ADDED
 	document.addEventListener('ANIM_ENDED', function (e) {
-		addNext();
+		if (GLOBAL_COUNT < 10) {
+			addNext();
+		} else if (GLOBAL_COUNT < 19 ){
+			removeLeftNode()
+		} else {
+			console.log("Done!")
+		}
+		GLOBAL_COUNT += 1
 	}, false)
 	addNext();
 }
@@ -1319,8 +1632,17 @@ function sleep(ms) {
 }
 
 // TM ADDED
+// Adds a random node to the tree
 addNext = async function() {
 	// Sleep gives time for the event to register
 	await sleep(100);
 	currentAlg.implementAction(currentAlg.insertElement.bind(currentAlg), Math.floor(Math.random() * 10000));
+}
+
+// TM ADDED
+// Removes the left-most node from the tree
+removeLeftNode = async function() {
+	// Sleep gives time for the event to register
+	await sleep(100);
+	currentAlg.implementAction(currentAlg.deleteLeftmostNode.bind(currentAlg));
 }
