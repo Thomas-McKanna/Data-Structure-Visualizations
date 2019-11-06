@@ -323,7 +323,6 @@ RedBlack.prototype.attachRightNullLeaf = function (node) {
 	treeNodeID = this.nextIndex++;
 	this.cmd("CreateCircle", treeNodeID, "NULL\nLEAF", node.x, node.y);
 	this.cmd("SetForegroundColor", treeNodeID, FOREGROUND_BLACK);
-	this.cmd("SetBackgroundColor", treeNodeID, BACKGROUND_BLACK);
 	node.right = new RedBlackNode("", treeNodeID, this.startingX, startingY);
 	this.cmd("SetLayer", treeNodeID, 1);
 
@@ -576,7 +575,6 @@ RedBlack.prototype.fixDoubleRed = function (tree) {
 			this.cmd("Step");
 			tree.parent.blackLevel = 1;
 			this.cmd("SetForegroundColor", tree.parent.graphicID, FOREGROUND_BLACK);
-			this.cmd("SetBackgroundColor", tree.parent.graphicID, BACKGROUND_BLACK);
 			return;
 		}
 		var uncle = this.findUncle(tree);
@@ -585,16 +583,13 @@ RedBlack.prototype.fixDoubleRed = function (tree) {
 			this.cmd("Step");
 
 			this.cmd("SetForegroundColor", uncle.graphicID, FOREGROUND_BLACK);
-			this.cmd("SetBackgroundColor", uncle.graphicID, BACKGROUND_BLACK);
 			uncle.blackLevel = 1;
 
 			tree.parent.blackLevel = 1;
 			this.cmd("SetForegroundColor", tree.parent.graphicID, FOREGROUND_BLACK);
-			this.cmd("SetBackgroundColor", tree.parent.graphicID, BACKGROUND_BLACK);
 
 			tree.parent.parent.blackLevel = 0;
 			this.cmd("SetForegroundColor", tree.parent.parent.graphicID, FOREGROUND_RED);
-			this.cmd("SetBackgroundColor", tree.parent.parent.graphicID, BACKGROUND_RED);
 			this.cmd("Step");
 			this.fixDoubleRed(tree.parent.parent);
 		}
@@ -622,11 +617,9 @@ RedBlack.prototype.fixDoubleRed = function (tree) {
 				this.singleRotateRight(tree.parent.parent);
 				tree.parent.blackLevel = 1;
 				this.cmd("SetForegroundColor", tree.parent.graphicID, FOREGROUND_BLACK);
-				this.cmd("SetBackgroundColor", tree.parent.graphicID, BACKGROUND_BLACK);
 
 				tree.parent.right.blackLevel = 0;
 				this.cmd("SetForegroundColor", tree.parent.right.graphicID, FOREGROUND_RED);
-				this.cmd("SetBackgroundColor", tree.parent.right.graphicID, BACKGROUND_RED);
 
 
 			}
@@ -637,11 +630,9 @@ RedBlack.prototype.fixDoubleRed = function (tree) {
 				this.singleRotateLeft(tree.parent.parent);
 				tree.parent.blackLevel = 1;
 				this.cmd("SetForegroundColor", tree.parent.graphicID, FOREGROUND_BLACK);
-				this.cmd("SetBackgroundColor", tree.parent.graphicID, BACKGROUND_BLACK);
 
 				tree.parent.left.blackLevel = 0;
 				this.cmd("SetForegroundColor", tree.parent.left.graphicID, FOREGROUND_RED);
-				this.cmd("SetBackgroundColor", tree.parent.left.graphicID, BACKGROUND_RED);
 
 			}
 		}
@@ -654,7 +645,6 @@ RedBlack.prototype.fixDoubleRed = function (tree) {
 
 			tree.blackLevel = 1;
 			this.cmd("SetForegroundColor", tree.graphicID, FOREGROUND_BLACK);
-			this.cmd("SetBackgroundColor", tree.graphicID, BACKGROUND_BLACK);
 		}
 	}
 
@@ -692,7 +682,6 @@ RedBlack.prototype.fixLeftNull = function (tree) {
 
 	this.cmd("CreateCircle", treeNodeID, "NULL\nLEAF", tree.x, tree.y);
 	this.cmd("SetForegroundColor", treeNodeID, FOREGROUND_BLACK);
-	this.cmd("SetBackgroundColor", treeNodeID, BACKGROUND_DOUBLE_BLACK);
 	nullLeaf = new RedBlackNode("NULL\nLEAF", treeNodeID, tree.x, tree.x);
 	nullLeaf.blackLevel = 2;
 	nullLeaf.parent = tree;
@@ -715,7 +704,6 @@ RedBlack.prototype.fixRightNull = function (tree) {
 
 	this.cmd("CreateCircle", treeNodeID, "NULL\nLEAF", tree.x, tree.y);
 	this.cmd("SetForegroundColor", treeNodeID, FOREGROUND_BLACK);
-	this.cmd("SetBackgroundColor", treeNodeID, BACKGROUND_DOUBLE_BLACK);
 	nullLeaf = new RedBlackNode("NULL\nLEAF", treeNodeID, tree.x, tree.x);
 	nullLeaf.parent = tree;
 	nullLeaf.phantomLeaf = true;
@@ -862,7 +850,6 @@ RedBlack.prototype.fixExtraBlack = function (tree) {
 			this.cmd("Step");
 
 			tree.blackLevel = 1;
-			this.cmd("SetBackgroundColor", tree.graphicID, BACKGROUND_BLACK);
 		}
 		else if (tree.parent.left == tree) {
 			this.fixExtraBlackChild(tree.parent, true);
@@ -981,7 +968,6 @@ RedBlack.prototype.treeDelete = function (tree, valueToDelete) {
 					if (this.treeRoot.blackLevel == 0) {
 						this.treeRoot.blackLevel = 1;
 						this.cmd("SetForegroundColor", this.treeRoot.graphicID, FOREGROUND_BLACK);
-						this.cmd("SetBackgroundColor", this.treeRoot.graphicID, BACKGROUND_BLACK);
 					}
 				}
 				this.resizeTree();
@@ -1292,7 +1278,6 @@ RedBlack.prototype.treeDeleteLeft = function (tree) {
 					if (this.treeRoot.blackLevel == 0) {
 						this.treeRoot.blackLevel = 1;
 						this.cmd("SetForegroundColor", this.treeRoot.graphicID, FOREGROUND_BLACK);
-						this.cmd("SetBackgroundColor", this.treeRoot.graphicID, BACKGROUND_BLACK);
 					}
 				}
 				this.resizeTree();
@@ -1480,15 +1465,12 @@ RedBlack.prototype.treeDeleteLeft = function (tree) {
 RedBlack.prototype.fixNodeColor = function (tree) {
 	if (tree.blackLevel == 0) {
 		this.cmd("SetForegroundColor", tree.graphicID, FOREGROUND_RED);
-		this.cmd("SetBackgroundColor", tree.graphicID, BACKGROUND_RED);
 	}
 	else {
 		this.cmd("SetForegroundColor", tree.graphicID, FOREGROUND_BLACK);
 		if (tree.blackLevel > 1) {
-			this.cmd("SetBackgroundColor", tree.graphicID, BACKGROUND_DOUBLE_BLACK);
 		}
 		else {
-			this.cmd("SetBackgroundColor", tree.graphicID, BACKGROUND_BLACK);
 		}
 	}
 }
