@@ -343,8 +343,6 @@ RedBlack.prototype.insertElement = function (insertedValue) {
 	this.cmd("SetText", 0, " Inserting " + insertedValue);
 	this.highlightID = this.nextIndex++;
 	var treeNodeID;
-	// TM ADDED
-	console.log(this.nextIndex + 1);
 	if (this.treeRoot == null) {
 		treeNodeID = this.nextIndex++;
 		this.cmd("CreateCircle", treeNodeID, insertedValue, this.startingX, startingY);
