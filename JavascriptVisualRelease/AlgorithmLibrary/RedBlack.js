@@ -340,7 +340,6 @@ RedBlack.prototype.insertElement = function (args) {
 	// Args should be of SchedEntity class (defined below)
 	let insertedValue = args.value;
 	let color = args.color;
-	console.log(color);
 	this.commands = new Array();
 	this.cmd("SetText", 0, " Inserting " + insertedValue);
 	this.highlightID = this.nextIndex++;
