@@ -48,6 +48,13 @@ post_status = function(msg, color) {
 	status_div.scrollTop = status_div.scrollHeight;
 }
 
+/*
+* Sets the time value on the screen
+*/
+set_time = function(val) {
+    document.getElementById("span_time").innerHTML = val;
+}
+
 // Simulation states
 let ADDING_NEW_PROCESSES = 1;
 let GETTING_NEXT_PROCESS = 2;
@@ -123,6 +130,7 @@ class CFSSimulation {
                 if (this.cfs.rb_tree.empty()) {
                     this.state = ADDING_NEW_PROCESSES;
                     this.time += 1;
+                    set_time(this.time);
                 } else {
                     this.curr_node = this.cfs.get_next();
                     console.log(this.cfs.rb_tree.to_string());
@@ -134,6 +142,7 @@ class CFSSimulation {
                     post_status(`Process ${this.curr_node.data.name} has been selected to run next`, this.curr_node.data.color);
                     this.state = REPLACING_CURRENT_PROCESS;
                     this.time += 1;
+                    set_time(this.time);
                     anim_remove_left();
                     return;
                 } 
@@ -156,6 +165,7 @@ class CFSSimulation {
                 throw "Simulator has entered an unknown state.";
             }
         }
+        set_time(this.time + " (Finished)");
     }
 }
 
