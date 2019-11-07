@@ -1587,9 +1587,31 @@ RedBlackNode.prototype.isLeftChild = function () {
 // Setup stuff
 ////////////////////////////////////////////////////////
 
-
+// TM ADDED
 var currentAlg;
-var GLOBAL_COUNT = 0
+var GLOBAL_COUNT = 0;
+let cfs = new CFS();
+
+// TM ADDED
+let colors = new Queue()
+let temp = [
+	"#FFBFBF",
+	"#CEB8FF",
+	"#AED4DE",
+	"#EBB5B5",
+	"#E1E29A",
+	"#BCF6FE",
+	"#C3DCD7",
+	"#FFC2EF",
+	"#F0E2A1",
+	"#DAB4A4",
+	"#E0B1E0",
+	"#89FAA6"
+]
+for (i in temp) {
+	colors.enqueue(temp[i]);
+}
+
 function init() {
 	var animManag = initCanvas();
 	currentAlg = new RedBlack(animManag, canvas.width, canvas.height);
@@ -1601,7 +1623,8 @@ function init() {
 		} else if (GLOBAL_COUNT < 19 ){
 			removeLeftNode()
 		} else {
-			console.log("Done!")
+			GLOBAL_COUNT = 1;
+			addNext();
 		}
 		GLOBAL_COUNT += 1
 	}, false)
@@ -1645,8 +1668,16 @@ addNext = async function() {
 	// Sleep gives time for the event to register
 	await sleep(100);
 
-	// Combine into argument class
-	se = new SchedEntity(Math.floor(Math.random() * 10000), random_color());
+	let curr_color = colors.dequeue();
+	let vruntime = Math.floor(Math.random() * 10000);
+
+	let new_process = new Process("", 0, curr_color);
+	new_process.vruntime = vruntime
+
+	cfs.add_process(new_process);
+	console.log(cfs.rb_tree.to_string());
+
+	let se = new SchedEntity(vruntime, curr_color);
 
 	currentAlg.implementAction(currentAlg.insertElement.bind(currentAlg), se);
 }
@@ -1656,5 +1687,12 @@ addNext = async function() {
 removeLeftNode = async function() {
 	// Sleep gives time for the event to register
 	await sleep(100);
+
+	let next_process = cfs.get_next();
+	console.log(cfs.rb_tree.to_string());
+	console.log(next_process);
+
+	colors.enqueue(next_process.data.color);
+
 	currentAlg.implementAction(currentAlg.deleteLeftmostNode.bind(currentAlg));
 }

@@ -18,6 +18,8 @@ var buffer = "";
 * left: the left child, either an RbNodeTM or sentinel (null node)
 * right: the right child, either an RbNodeTM or sentinel (null node)
 * p: the parent node, either RbNodeTM or sentinel (root's parent)
+* data: any arbitrary data associated with the node (its contents are 
+* irrelevant to RB-tree implementation)
 */
 class RbNodeTM {
     constructor(key, color) {
@@ -32,6 +34,12 @@ class RbNodeTM {
         this.left = null;
         this.right = null;
         this.p = null;
+
+        this.data = null;
+    }
+
+    set_data(data) {
+        this.data = data;
     }
 
     to_string() {
@@ -145,11 +153,9 @@ function left_rotate(T, x) {
 * Inserts z into RB-Tree T.
 */
 function rb_insert(T, z) {
-    
     let y = T.nil;
     let x = T.root;
     while (x != T.nil) {
-        
         y = x;
         if (z.key < x.key) {
             x = x.left;
@@ -340,5 +346,14 @@ function rb_delete_fixup(T, x) {
         } 
     }
     x.color = BLACK;
+}
+
+/*
+* Removes and returns the leftmost node in the RB-Tree, if one exists.
+*/
+function pop_leftmost_node(T) {
+    let leftmost_node = tree_minimum(T.root);
+    rb_delete(T, leftmost_node);
+    return leftmost_node;
 }
 
