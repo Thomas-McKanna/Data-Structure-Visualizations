@@ -32,6 +32,8 @@
 
 	<script type="text/javascript" src="AlgorithmLibrary/Algorithm.js"> </script>
 	<script type="text/javascript" src="AlgorithmLibrary/RedBlackTreeTM.js"> </script>
+	<script type="text/javascript" src="AlgorithmLibrary/QueueTM.js"> </script>
+	<script type="text/javascript" src="AlgorithmLibrary/CFS.js"> </script>
 	<script type="text/javascript" src="AlgorithmLibrary/RedBlack.js"> </script>
 
 
@@ -78,36 +80,6 @@
 		</div>
 
 	</div><!-- container -->
-	<script>
-		let rbt = new RedBlackTreeTM();
-		let nodes = [
-			new RbNodeTM(55),
-			new RbNodeTM(54),
-			new RbNodeTM(53),
-			new RbNodeTM(52),
-			new RbNodeTM(51),
-			new RbNodeTM(50),
-			new RbNodeTM(45),
-			new RbNodeTM(47),
-		]
-		rb_insert(rbt, nodes[0]);
-		rb_insert(rbt, nodes[1]);
-		rb_insert(rbt, nodes[2]);
-		rb_insert(rbt, nodes[3]);
-		rb_insert(rbt, nodes[4]);
-		rb_insert(rbt, nodes[5]);
-		rb_insert(rbt, nodes[6]);
-		rb_insert(rbt, nodes[7]);
-		rb_delete(rbt, nodes[6]);
-		rb_delete(rbt, nodes[7]);
-		rb_delete(rbt, nodes[5]);
-		rb_delete(rbt, nodes[4]);
-		rb_delete(rbt, nodes[3]);
-		rb_delete(rbt, nodes[2]);
-		rb_delete(rbt, nodes[1]);
-		rb_delete(rbt, nodes[0]);
-		console.log(rbt.to_string())
-	</script>
 </body>
 
 </html>

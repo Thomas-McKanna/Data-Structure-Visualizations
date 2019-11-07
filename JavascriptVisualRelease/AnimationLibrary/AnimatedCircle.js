@@ -100,7 +100,7 @@ AnimatedCircle.prototype.draw = function(ctx)
 	
 	ctx.fillStyle = this.backgroundColor;
 	ctx.strokeStyle = this.foregroundColor;
-	ctx.lineWidth = 1;
+	ctx.lineWidth = 3;
 	ctx.beginPath();
 	ctx.arc(this.x,this.y,this.radius,0,Math.PI*2, true);
 	ctx.closePath();
