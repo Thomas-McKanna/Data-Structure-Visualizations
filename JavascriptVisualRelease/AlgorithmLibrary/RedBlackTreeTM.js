@@ -65,11 +65,27 @@ class RbNodeTM {
     }
 }
 
+/*
+* A Red-Black Tree is a self-balance data structure which allows for insertion
+* and deletion operations in O(lg(n)) time, where in is the number of nodes in
+* the tree. There are five properties required for a Red-Black Tree:
+*
+*   1) Every node is either red or black
+*   2) The root is black
+*   3) Every leaf is black
+*   4) If a node is red, then both of its children are black
+*   5) For each node, all simple paths from the node to descendant leave
+*      contain the same number of black nodes
+*/
 class RedBlackTreeTM {
     constructor() {
         // Sentinel node acts as a "nil" leaf node and is parent of root
         this.nil = new RbNodeTM(null, BLACK);
         this.root = this.nil;
+    }
+
+    empty() {
+        return (this.root == this.nil);
     }
 
     to_string() {
@@ -356,4 +372,3 @@ function pop_leftmost_node(T) {
     rb_delete(T, leftmost_node);
     return leftmost_node;
 }
-
