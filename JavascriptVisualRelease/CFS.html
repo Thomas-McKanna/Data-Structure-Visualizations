@@ -58,9 +58,11 @@
 			<!-- Drawing canvas where all animation is done.  Note:  can be resized in code -->
 
 			<div
-				style="height:120px;width:120px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
-				As you can see, once there's enough text in this box, the box will grow scroll bars... that's why we
-				call it a scroll box! You could also place an image into the scroll box.
+				id="div_statuses"
+				style="height:200px;width:1000px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
+				<ul id="ul_statuses" style="list-style-type:none">
+
+				</ul>
 			</div>
 
 			<canvas id="canvas" width="1000" height="500"></canvas>

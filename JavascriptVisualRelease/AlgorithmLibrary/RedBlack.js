@@ -1677,6 +1677,8 @@ addNext = async function() {
 	cfs.add_process(new_process);
 	console.log(cfs.rb_tree.to_string());
 
+	post_status(`Process ${new_process.name} is being inserted into the tree with a vruntime of ${new_process.vruntime}`, curr_color);
+
 	let se = new SchedEntity(vruntime, curr_color);
 
 	currentAlg.implementAction(currentAlg.insertElement.bind(currentAlg), se);
@@ -1690,9 +1692,28 @@ removeLeftNode = async function() {
 
 	let next_process = cfs.get_next();
 	console.log(cfs.rb_tree.to_string());
-	console.log(next_process);
+
+	post_status(`Process ${next_process.name} has been selected to run next`, next_process.data.color);
 
 	colors.enqueue(next_process.data.color);
 
 	currentAlg.implementAction(currentAlg.deleteLeftmostNode.bind(currentAlg));
+}
+
+/*
+* Adds a new status message to the scrolling message board.
+* Parameters:
+* -----------
+* msg: string message to display
+* color: hex color of block to be displayed before message
+*/
+post_status = function(msg, color) {
+	// Add new status message
+	document.getElementById("ul_statuses").innerHTML +=
+		`<li>
+			<span style="color:${color}">&#9608;&#9608;&#9608;</span> ${msg}
+		</li>`;
+	// Scroll to bottom
+	var status_div = document.getElementById("div_statuses");
+	status_div.scrollTop = status_div.scrollHeight;
 }
