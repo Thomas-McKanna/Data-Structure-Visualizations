@@ -82,10 +82,15 @@ class RedBlackTreeTM {
         // Sentinel node acts as a "nil" leaf node and is parent of root
         this.nil = new RbNodeTM(null, BLACK);
         this.root = this.nil;
+        this.size = 0;
     }
 
     empty() {
         return (this.root == this.nil);
+    }
+
+    get_size() {
+        return this.size;
     }
 
     to_string() {
@@ -191,6 +196,8 @@ function rb_insert(T, z) {
     z.right = T.nil;
     z.color = RED;
     rb_insert_fixup(T, z);
+
+    T.size += 1;
 }
 
 /*
@@ -285,6 +292,8 @@ function rb_delete(T, z) {
     if (y_original_color == BLACK) {
         rb_delete_fixup(T, x);
     }
+
+    T.size -= 1;
 }
 
 /*

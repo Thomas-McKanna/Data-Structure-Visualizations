@@ -76,4 +76,8 @@ class CFS {
     get_next() {
         return pop_leftmost_node(this.rb_tree);
     }
+
+    get_number_processes() {
+        return this.rb_tree.get_size();
+    }
 }
