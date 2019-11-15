@@ -180,6 +180,8 @@ class CFSSimulation {
                 let fair_share = Math.floor((1/N)*this.target_latency);
                 // How long this processes will run for
                 let duration = Math.max(mg, fair_share);
+                let remaining_time = this.curr_node.data.total_time_needed - this.curr_node.data.vruntime;
+                duration = Math.min(duration, remaining_time);
 
                 // "Run" the process
                 this.curr_node.data.vruntime += duration;
@@ -191,7 +193,7 @@ class CFSSimulation {
                 for (let i = 0; i < duration; i++) {
                     this.time += 1;
                     set_time(this.time + ` (${get_color_block(color)} running)`);
-                    await sleep(500);
+                    await sleep(250);
                 }
                 // Remove "color running" message
                 set_time(this.time);
@@ -226,12 +228,12 @@ let MINIMUM_GRANULARITY = 4
 let simulation = new CFSSimulation(TARGET_LATENCY, MINIMUM_GRANULARITY)
 
 // Add processes to simulation...
-simulation.add_process("P1", 0, 10);
-simulation.add_process("P2", 0, 12);
-simulation.add_process("P3", 2, 4);
-simulation.add_process("P4", 5, 9);
-simulation.add_process("P5", 6, 2);
-simulation.add_process("P5", 6, 10);
+simulation.add_process("P1", 0, 20);
+simulation.add_process("P2", 0, 5);
+simulation.add_process("P3", 0, 10);
+simulation.add_process("P4", 15, 20);
+simulation.add_process("P5", 20, 5);
+simulation.add_process("P5", 250, 5);
 
 // Add event listener
 document.addEventListener('ANIM_ENDED', function (e) {
