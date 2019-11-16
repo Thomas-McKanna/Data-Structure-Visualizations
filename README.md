@@ -2,6 +2,12 @@
 
 The aim of this project is to create a simulation of one of the scheduling method which Linux employs: Completely Fair Scheduler (CFS). The simulation is visualized using a modified version of a project by David Galles (https://www.cs.usfca.edu/~galles/visualization/).
 
+The app uses pure javascript, html, and css - so all that is needed is a web browser. After cloning the repo, open up `CFS.html` in a web browser to begin. You will be presented with an input field allowing you to customize the processes to simulate.
+
+Here is what the app looks like in action:
+
+<img src='https://github.com/Thomas-McKanna/Data-Structure-Visualizations/raw/master/cfs.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+
 ```
 Copyright 2011 David Galles, University of San Francisco. All rights reserved.
 
