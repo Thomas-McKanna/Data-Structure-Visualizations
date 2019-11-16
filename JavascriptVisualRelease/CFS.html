@@ -29,15 +29,7 @@
 	<script type="text/javascript" src="AnimationLibrary/Line.js"> </script>
 	<script type="text/javascript" src="AnimationLibrary/ObjectManager.js"> </script>
 	<script type="text/javascript" src="AnimationLibrary/AnimationMain.js"> </script>
-
 	<script type="text/javascript" src="AlgorithmLibrary/Algorithm.js"> </script>
-	<script type="text/javascript" src="AlgorithmLibrary/RedBlackTreeTM.js"> </script>
-	<script type="text/javascript" src="AlgorithmLibrary/QueueTM.js"> </script>
-	<script type="text/javascript" src="AlgorithmLibrary/CFS.js"> </script>
-	<script type="text/javascript" src="AlgorithmLibrary/RedBlack.js"> </script>
-	<script type="text/javascript" src="AlgorithmLibrary/Simulation.js"> </script>
-
-
 </head>
 
 <body onload="init();" class="VisualizationMainPage">
@@ -58,17 +50,33 @@
 
 			<!-- Drawing canvas where all animation is done.  Note:  can be resized in code -->
 
-			<div
-				id="div_statuses"
-				style="height:200px;width:1000px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
-				<ul id="ul_statuses" style="list-style-type:none">
-
-				</ul>
+			<div id="div_input">
+				<h2>Simulation Input:</h2>
+				<p style="margin-left: 25px;">Processes should be input in the form "&lt;name&gt; &lt;start time&gt; &lt;total time needed&gt;"</p>
+				<textarea id="ta_input" rows="9" cols="40" style="font-size: 25px; margin-left: 25px;">target_latency:20&#10;minimum_granularity:4&#10;P1 0 10&#10;P2 0 5&#10;P3 0 7&#10;P4 0 15&#10;P5 20 10&#10;P6 30 20&#10;P7 30 15&#10;P8 60 10&#10;P9 60 6&#10;P10 70 5&#10;P11 80 5&#10;P12 80 5</textarea>
+				<br>
+				<button id="btn_start_sim" style="font-size: 25px; margin-left: 25px;">Start Simulation!</button>
 			</div>
 
-			<div>
-				<h2>Time: <span id="span_time"></span></h3>
+			<div id="div_statuses" style="display: none;">
+					<div
+					id="div_procs"
+					style="height:200px;width:1000px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
+					<ul id="ul_statuses" style="list-style-type:none">
+	
+					</ul>
+				</div>
+				<h2 >Time: <span id="span_time"></span></h2>
 			</div>
+			
+			<div id="div_summary"></div>
+
+			<div id="div_start_over" style="display: none;">
+				<button id="btn_start_over" style="font-size: 25px; margin-left: 25px; background: #00AA00; color: #EEEEEE;">Start Over</button>
+			</div>
+
+			
+			
 
 			<canvas id="canvas" width="1000" height="500"></canvas>
 
@@ -87,6 +95,12 @@
 		</div>
 
 	</div><!-- container -->
+
+	<script type="text/javascript" src="AlgorithmLibrary/RedBlackTreeTM.js"> </script>
+	<script type="text/javascript" src="AlgorithmLibrary/QueueTM.js"> </script>
+	<script type="text/javascript" src="AlgorithmLibrary/CFS.js"> </script>
+	<script type="text/javascript" src="AlgorithmLibrary/RedBlack.js"> </script>
+	<script type="text/javascript" src="AlgorithmLibrary/Simulation.js"> </script>
 </body>
 
 </html>

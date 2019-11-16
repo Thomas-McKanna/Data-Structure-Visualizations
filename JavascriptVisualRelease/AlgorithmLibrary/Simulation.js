@@ -46,7 +46,7 @@ post_status = function(msg, color) {
 			${get_color_block(color)} ${msg}
 		</li>`;
 	// Scroll to bottom
-	var status_div = document.getElementById("div_statuses");
+	var status_div = document.getElementById("div_procs");
 	status_div.scrollTop = status_div.scrollHeight;
 }
 
@@ -55,7 +55,7 @@ get_color_block = function(color) {
 }
 
 /*
-* Sets the time value on the screen.
+* Sets the time value on the screen (need not only be a number).
 */
 set_time = function(val) {
     document.getElementById("span_time").innerHTML = val;
@@ -67,6 +67,8 @@ let GETTING_NEXT_PROCESS = 2;
 let RUNNING_PROCESS = 3
 let REPLACING_CURRENT_PROCESS = 4;
 let FINISHED = 5;
+
+let SLEEP_TIME = 250; // ms
 
 /*
 * This is the core class which handles all of the logic for the simulation. 
@@ -80,20 +82,21 @@ class CFSSimulation {
         this.curr_node = null;
         this.target_latency = target_latency;
         this.minimum_granularity = minimum_granularity;
+        this.active = false;
 
         this.colors = new Queue()
         let temp = [
-            "#FFBFBF",
-            "#CEB8FF",
-            "#AED4DE",
-            "#EBB5B5",
-            "#E1E29A",
+            "#FFDFD3",
+            "#FFF9AA",
             "#BCF6FE",
-            "#C3DCD7",
+            "#AFD5AA",
             "#FFC2EF",
-            "#F0E2A1",
-            "#DAB4A4",
-            "#E0B1E0",
+            "#CAA7BD",
+            "#CEB8FF",
+            "#6CB2D1",
+            "#FECBA5",
+            "#B7C68B",
+            "#DF9881",
             "#89FAA6"
         ]
         for (let i in temp) {
@@ -112,6 +115,14 @@ class CFSSimulation {
     add_process(name, start_time, time_needed) {
         let next_color = this.colors.dequeue();
         this.processes.push(new Process(name, time_needed, start_time, next_color))
+    }
+
+    /*
+    * Starts the simulation.
+    */
+    start() {
+        this.active = true;
+        this.resume_simulation();
     }
 
     /*
@@ -160,7 +171,8 @@ class CFSSimulation {
                 if (this.cfs.rb_tree.empty()) {
                     this.state = ADDING_NEW_PROCESSES;
                     this.time += 1;
-                    set_time(this.time);
+                    set_time(this.time + ` (no processes available)`);
+                    await sleep(SLEEP_TIME);
                 } else {
                     // Choose next process to run
                     this.curr_node = this.cfs.get_next();
@@ -193,7 +205,7 @@ class CFSSimulation {
                 for (let i = 0; i < duration; i++) {
                     this.time += 1;
                     set_time(this.time + ` (${get_color_block(color)} running)`);
-                    await sleep(250);
+                    await sleep(SLEEP_TIME);
                 }
                 // Remove "color running" message
                 set_time(this.time);
@@ -220,23 +232,150 @@ class CFSSimulation {
             }
         }
         set_time(this.time + " (Finished)");
+        document.getElementById('div_summary').innerHTML = get_summary();
+        document.getElementById('div_summary').setAttribute("style", "display: block");
+        document.getElementById('div_start_over').setAttribute("style", "display: block");
     }
 }
 
 let TARGET_LATENCY = 20;
 let MINIMUM_GRANULARITY = 4
-let simulation = new CFSSimulation(TARGET_LATENCY, MINIMUM_GRANULARITY)
+let simulation = undefined;
 
-// Add processes to simulation...
-simulation.add_process("P1", 0, 20);
-simulation.add_process("P2", 0, 5);
-simulation.add_process("P3", 0, 10);
-simulation.add_process("P4", 15, 20);
-simulation.add_process("P5", 20, 5);
-simulation.add_process("P5", 250, 5);
+/*
+* Parses text to make a CFSSimulation object. If successful, this function
+* will set the global simulation object to the newly created object and return
+* true. If parsing is not successful, the global object will not be touched
+* and false will be returned.
+*/
+parse_input = function(txt) {
+    let lines = txt.split("\n")
+    // Target latency
+    let tl = -1;
+    // Minimum granularity
+    let mg = -1;
+    // Try to get target frequency and minimum granularity
+    try {
+        let i = lines[0].search(":");
+        tl = Number(lines[0].substring(i+1));
+        i = lines[1].search(":");
+        mg = Number(lines[1].substring(i+1));
+        
+        if (isNaN(tl) || tl <= 0) {
+            throw "invalid target latency";
+        } 
+        if (isNaN(mg) || mg <= 0 || mg > tl) {
+            throw "invalid minimum granularity";
+        }
+    } catch (e) {
+        alert("Invalid input: " + e);
+        return false;
+    }
+
+    // Check that there are any processes to parse
+    if (lines.length < 3) {
+        alert("Invalid input: no processes");
+        return false;
+    }
+
+    let new_cfs = new CFSSimulation(tl, mg);
+
+    // Parse each of the processes
+    for (let i = 2; i < lines.length; i++) {
+        try {
+            let parts = lines[i].trim().split(" ");
+            if (parts.length != 3) {
+                throw "processes does not consist of 3 parts"
+            }
+            let name = parts[0];
+            let start_time = Number(parts[1]);
+            let total_time = Number(parts[2]);
+
+            if (isNaN(start_time) || start_time < 0) {
+                throw "invalid start time";
+            } 
+            if (isNaN(total_time) || total_time <= 0) {
+                throw "invalid total time";
+            }
+
+            new_cfs.add_process(name, start_time, total_time);
+        } catch (e) {
+            alert("Invalid input: " + e);
+            return false;
+        }
+    }
+
+    simulation = new_cfs;
+    return true;
+}
+
+/*
+* Return the inner HTML for a table that displayed the stats of the simulation,
+* which includes:
+*   1) Finish time: the time unit when the process completed
+*   2) Turnaround time: the number of time units between arrival and completion
+*   3) Normalized turnaround time: turnaround time / service time
+*/
+get_summary = function (e) {
+    let table = "";
+    // Make sure the simulation exists and has already finished
+    if (simulation != undefined && simulation.state == FINISHED) {
+        // Header row
+        table += '<table class="tg"><tr><th>Process</th>';
+        for (let i = 0; i < simulation.processes.length; i++) {
+            table += `<th class="tg-fymr">${simulation.processes[i].name}</th>`;
+        }
+        // Arrival time
+        table += "</tr><tr><td>Arrival Time</td>";
+        for (let i = 0; i < simulation.processes.length; i++) {
+            table += `<td class="tg-0pky">${simulation.processes[i].start_time}</td>`;
+        }
+        // Serive Time (T_s)
+        table += "</tr><tr><td>Service Time (T<sub>s</sub>)</td>";
+        for (let i = 0; i < simulation.processes.length; i++) {
+            table += `<td class="tg-0pky">${simulation.processes[i].total_time_needed}</td>`;
+        }
+        // Finish Time
+        table += "</tr><tr><td>Finish Time</td>";
+        for (let i = 0; i < simulation.processes.length; i++) {
+            table += `<td class="tg-0pky">${simulation.processes[i].time_finished}</td>`;
+        }
+        // Turnaround Time (T_r)
+        table += "</tr><tr><td>Turnaround Time (T<sub>r</sub>)</td>";
+        for (let i = 0; i < simulation.processes.length; i++) {
+            table += `<td class="tg-0pky">${simulation.processes[i].time_finished - simulation.processes[i].start_time}</td>`;
+        }
+        // Normalized Turnaround Time (T_r / T_s)
+        table += "</tr><tr><td>T<sub>r</sub> / T<sub>s</sub></td>";
+        for (let i = 0; i < simulation.processes.length; i++) {
+            table += `<td class="tg-0pky">${((simulation.processes[i].time_finished - simulation.processes[i].start_time) / simulation.processes[i].total_time_needed).toFixed(2)}</td>`;
+        }
+        table += "</td></table>"
+    }
+    return table;
+}
 
 // Add event listener
 document.addEventListener('ANIM_ENDED', function (e) {
-    console.log("anim_ended")
-    simulation.resume_simulation();
+    console.log("anim_ended");
+    if (simulation != undefined && simulation.active) {
+        simulation.resume_simulation();
+    }
 }, false)
+
+document.getElementById('btn_start_sim').addEventListener('click', function (e) {
+    console.log("clicked start animation... attempting to parse input");
+    let txt = document.getElementById("ta_input").value;
+    if (parse_input(txt)) {
+        document.getElementById('div_input').setAttribute("style", "display: none");
+        document.getElementById('div_statuses').setAttribute("style", "display: block");
+        simulation.start();
+    }
+});
+
+document.getElementById('btn_start_over').addEventListener('click', function (e) {
+    document.getElementById('div_input').setAttribute("style", "display: block");
+    document.getElementById('div_statuses').setAttribute("style", "display: none");
+    document.getElementById('div_start_over').setAttribute("style", "display: none");
+    document.getElementById('div_summary').setAttribute("style", "display: none");
+});
